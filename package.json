@@ -1,0 +1,22 @@
+{
+  "name": "cowbell",
+  "version": "0.0.1",
+  "description": "A simple client-server game of Bulls and Cows",
+  "main": "./bin/cowbell",
+  "scripts": {
+    "test": "grunt test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/psstoev/cowbell.git"
+  },
+  "keywords": [
+    "cows",
+    "bulls"
+  ],
+  "author": "Plamen Stoev",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/psstoev/cowbell/issues"
+  }
+}
