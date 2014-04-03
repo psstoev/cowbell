@@ -62,3 +62,22 @@ describe("getBullsForGuess()", function() {
         expect(cowbell.getBullsForGuess("1234", "4321")).to.eq(0);
     });
 });
+
+describe("isGuessValid()", function() {
+    it("validates length", function() {
+        expect(cowbell.isGuessValid("123")).to.be.false;
+        expect(cowbell.isGuessValid("12345")).to.be.false;
+    });
+
+    it("validates that the guess does not start with 0", function() {
+        expect(cowbell.isGuessValid("0123")).to.be.false;
+    });
+
+    it("validates that the guess contains only unique digits", function() {
+        expect(cowbell.isGuessValid("1223")).to.be.false;
+    });
+
+    it("recognizes valid guesses", function() {
+        expect(cowbell.isGuessValid("1234")).to.be.true;
+    });
+});
