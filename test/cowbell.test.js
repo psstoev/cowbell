@@ -38,3 +38,13 @@ describe("getRandomNumber()", function() {
         expect(Math.abs(mean - EXPECTED_MEAN)).to.be.below(100);
     });
 });
+
+describe("getCowsForGuess()", function() {
+    it("returns 0 for no cows", function() {
+        expect(cowbell.getCowsForGuess("1234", "5678")).to.eq(0);
+    });
+
+    it("returns the correct number of cows", function() {
+        expect(cowbell.getCowsForGuess("1234", "4253")).to.eq(3);
+    });
+});
