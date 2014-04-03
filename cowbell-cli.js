@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 var readline = require("readline");
-var Game = require("../lib/game");
+var Game = require("./lib/game");
 var game = new Game();
 var gameWon = false;
 

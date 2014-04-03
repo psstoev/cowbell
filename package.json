@@ -2,9 +2,9 @@
   "name": "cowbell",
   "version": "0.0.1",
   "description": "A simple client-server game of Bulls and Cows",
-  "main": "./bin/cowbell",
+  "main": "./cowbell-cli",
   "scripts": {
-    "test": "./node_modules/.bin/mocha --reporter spec test/*.test.js"
+    "test": "./node_modules/.bin/mocha -C --reporter spec test/*.test.js"
   },
   "repository": {
     "type": "git",

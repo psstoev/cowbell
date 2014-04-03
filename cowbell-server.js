@@ -5,7 +5,7 @@ var socketIo = require("socket.io");
 var io;
 
 var app = http.createServer(function(request, response) {
-    fs.readFile(path.resolve(__dirname, "../index.html"), function(err, data) {
+    fs.readFile(path.resolve(__dirname, "./index.html"), function(err, data) {
         if (err) {
             response.writeHead(500);
             return response.end("Cannot find index.html");
