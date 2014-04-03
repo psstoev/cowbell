@@ -1,0 +1,8 @@
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    (function() {
+        var socket = io.connect('http://localhost:8080');
+
+        socket.emit("guess", 1234);
+    }());
+</script>
