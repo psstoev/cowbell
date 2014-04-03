@@ -45,7 +45,7 @@ describe("getCowsForGuess()", function() {
     });
 
     it("returns the correct number of cows", function() {
-        expect(cowbell.getCowsForGuess("1234", "4253")).to.eq(3);
+        expect(cowbell.getCowsForGuess("1234", "4523")).to.eq(3);
     });
 });
 
@@ -59,7 +59,8 @@ describe("getBullsForGuess()", function() {
     });
 
     it("distinguishes betweet bulls and cows", function() {
-        expect(cowbell.getBullsForGuess("1234", "4321")).to.eq(0);
+        expect(cowbell.getBullsForGuess("1234", "1435")).to.eq(2);
+        expect(cowbell.getCowsForGuess("1234", "1435")).to.eq(1);
     });
 });
 
