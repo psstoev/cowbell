@@ -4,7 +4,7 @@ var expect = chai.expect;
 
 describe("getRandomNumber()", function() {
     it("returns a 4-digit number as a string", function() {
-        expect(cowbell.getRandomNumber()).to.match(/\d{4}/);
+        expect(cowbell.getRandomNumber()).to.match(/^\d{4}$/);
     });
 
     it("returns a number with unique digits", function() {
