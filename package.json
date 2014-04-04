@@ -24,6 +24,7 @@
     "chai": "~1.9.1"
   },
   "dependencies": {
-    "socket.io": "~0.9.16"
+    "socket.io": "~0.9.16",
+    "express": "~3.5.1"
   }
 }
