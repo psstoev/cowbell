@@ -97,19 +97,19 @@ describe("Game", function() {
         });
 
         it("returns 0 for no cows and 0 for no bulls", function() {
-            expect((new Game("1234")).tryGuess("5678")).to.deep.eq({cows: 0, bulls: 0});
+            expect((new Game("1234")).tryGuess("5678")).to.deep.eq({cows: 0, bulls: 0, guess: "5678"});
         });
 
         it("returns the correct number of cows", function() {
-            expect((new Game("1234")).tryGuess("4523")).to.deep.eq({cows: 3, bulls: 0});
+            expect((new Game("1234")).tryGuess("4523")).to.deep.eq({cows: 3, bulls: 0, guess: "4523"});
         });
 
         it("returns the correct number of bulls", function() {
-            expect((new Game("1234")).tryGuess("5274")).to.deep.eq({cows: 0, bulls: 2});
+            expect((new Game("1234")).tryGuess("5274")).to.deep.eq({cows: 0, bulls: 2, guess: "5274"});
         });
 
         it("distinguishes betweet bulls and cows", function() {
-            expect((new Game("1234")).tryGuess("1435")).to.deep.eq({cows: 1, bulls: 2});
+            expect((new Game("1234")).tryGuess("1435")).to.deep.eq({cows: 1, bulls: 2, guess: "1435"});
         });
 
         it("triggers 'playerWon' event", function() {

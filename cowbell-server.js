@@ -33,21 +33,16 @@ app.listen(8080);
 io.sockets.on("connection", function(socket) {
     var game = new Game();
 
+    game.on("playerWon", function() {
+        socket.emit("correct", { guess: game.target });
+    }).on("foundCowsAndBulls", function(result) {
+        socket.emit("found", result);
+    }).on("invalidGuess", function(guess) {
+        socket.emit("error", { guess: guess });
+    })
+
     socket.on("guess", function(guess) {
-        var cows, bulls;
-        var result = game.tryGuess(guess);
-
-        result.guess = guess;
-
-        if (!result.error) {
-            if (result.bulls === 4) {
-                socket.emit("correct", result);
-            } else {
-                socket.emit("found", result);
-            }
-        } else {
-            socket.emit("error", result);
-        }
+        game.tryGuess(guess);
     }).on("give up", function() {
         socket.emit("give up", { number: game.target });
     });
