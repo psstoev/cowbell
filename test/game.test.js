@@ -9,6 +9,21 @@ describe("Game", function() {
         expect(game.target).to.be.a("string");
     });
 
+    it("can tell if it was already won by someone", function() {
+        var game = new Game("1234");
+        var isWon = false;
+
+        game.tryGuess("1234");
+
+        game.on("alreadyWon", function() {
+            isWon = true;
+        });
+
+        game.tryGuess("5678");
+
+        expect(isWon).to.be.true;
+    });
+
     describe("Game.createTargetNumber", function() {
         var createTargetNumber = Game.createTargetNumber;
 
@@ -50,26 +65,35 @@ describe("Game", function() {
 
     describe("Game#tryGuess", function() {
         var game;
+        var invalidGuess;
 
-        before(function() {
+        beforeEach(function() {
             game = new Game();
+            invalidGuess = false;
+
+            game.on("invalidGuess", function() {
+                invalidGuess = true;
+            });
         });
 
         it("validates length", function() {
-            expect(game.tryGuess("123")).to.have.property("error");
-            expect(game.tryGuess("12345")).to.have.property("error");
+            game.tryGuess("1");
+            expect(invalidGuess).to.be.true;
         });
 
         it("validates that the guess does not start with 0", function() {
-            expect(game.tryGuess("0123")).to.have.property("error");
+            game.tryGuess("0123");
+            expect(invalidGuess).to.be.true;
         });
 
         it("validates that the guess contains only unique digits", function() {
-            expect(game.tryGuess("1223")).to.have.property("error");
+            game.tryGuess("1223");
+            expect(invalidGuess).to.be.true;
         });
 
         it("recognizes valid guesses", function() {
-            expect(game.tryGuess("1234")).to.not.have.property("error");
+            game.tryGuess("1234");
+            expect(invalidGuess).to.be.false;
         });
 
         it("returns 0 for no cows and 0 for no bulls", function() {
@@ -86,6 +110,19 @@ describe("Game", function() {
 
         it("distinguishes betweet bulls and cows", function() {
             expect((new Game("1234")).tryGuess("1435")).to.deep.eq({cows: 1, bulls: 2});
+        });
+
+        it("triggers 'playerWon' event", function() {
+            var game = new Game("1234");
+            var isWon = false;
+
+            game.on("playerWon", function() {
+                isWon = true;
+            });
+
+            game.tryGuess("1234");
+
+            expect(isWon).to.be.true;
         });
     });
 });
