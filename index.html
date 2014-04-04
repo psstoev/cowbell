@@ -1,8 +1,78 @@
-<script src="/socket.io/socket.io.js"></script>
-<script>
-    (function() {
-        var socket = io.connect('http://localhost:8080');
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Cowbell</title>
+    <meta charset="utf-8">
+</head>
+<body>
+    <ul></ul>
 
-        socket.emit("guess", 1234);
-    }());
-</script>
+    <form id="try-guess">
+        <input type="text">
+        <button type="submit">Guess</button>
+        <button id="give-up">Give up</button>
+    </form>
+
+    <script src="/components/jquery-2.1.0.min.js"></script>
+    <script src="/components/underscore-min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script type="text/html" id="found">
+        <li>You guessed: <%= guess %>, Cows: <%= cows %>, Bulls: <%= bulls %></li>
+    </script>
+
+    <script type="text/html" id="correct">
+        <li>Correct! The number was: <%= guess %></li>
+    </script>
+
+    <script type="text/html" id="error">
+        <li>Invalid guess: <%= guess %></li>
+    </script>
+
+    <script type="text/html" id="giveup">
+        <li>You gave up, the number was: <%= number %></li>
+    </script>
+
+    <script>
+        $(function() {
+            var socket = io.connect('http://localhost:8080');
+            var $tryGuess = $("#try-guess");
+            var $guess = $tryGuess.find("input");
+            var $log = $("ul");
+            var templates = {};
+
+            $("script[type='text/html']").each(function() {
+                templates[this.getAttribute("id")] = _.template(this.textContent);
+                this.parentNode.removeChild(this);
+            });
+
+            $tryGuess.on("submit", function(event) {
+                event.preventDefault();
+
+                var guess = $guess.val();
+                $guess.val('');
+
+                if (guess) {
+                    socket.emit("guess", guess);
+                }
+            });
+
+            $("#give-up").on("click", function() {
+                socket.emit("give up");
+            });
+
+            socket.on("found", function(result) {
+                $log.append($(templates.found(result)));
+            }).on("correct", function(result) {
+                $log.append($(templates.correct(result)));
+                $tryGuess.remove();
+            }).on("error", function(result) {
+                $log.append($(templates.error(result)));
+            }).on("give up", function(result) {
+                $log.append($(templates.giveup(result)));
+                $tryGuess.remove();
+            });
+        });
+    </script>
+</body>
+</html>
