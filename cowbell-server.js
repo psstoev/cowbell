@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var http = require("http");
 var fs = require("fs");
 var path = require("path");
@@ -5,6 +7,7 @@ var url = require("url");
 var socketIo = require("socket.io");
 var Game = require("./lib/game");
 var io;
+var playerCount = 0;
 
 var app = http.createServer(function(request, response) {
     var filename = url.parse(request.url).pathname;
@@ -33,6 +36,9 @@ app.listen(8080);
 io.sockets.on("connection", function(socket) {
     var game = new Game();
 
+    playerCount++;
+    var playerId = "player" + playerCount;
+
     game.on("playerWon", function() {
         socket.emit("correct", { guess: game.target });
     }).on("foundCowsAndBulls", function(result) {
@@ -46,4 +52,6 @@ io.sockets.on("connection", function(socket) {
     }).on("give up", function() {
         socket.emit("give up", { number: game.target });
     });
+
+    socket.emit("welcome", playerId);
 });

@@ -5,6 +5,7 @@
     <meta charset="utf-8">
 </head>
 <body>
+    <h1></h1>
     <ul></ul>
 
     <form id="try-guess">
@@ -61,7 +62,9 @@
                 socket.emit("give up");
             });
 
-            socket.on("found", function(result) {
+            socket.on("welcome", function(playerId) {
+                $("h1").text("Welcome, " + playerId);
+            }).on("found", function(result) {
                 $log.append($(templates.found(result)));
             }).on("correct", function(result) {
                 $log.append($(templates.correct(result)));
