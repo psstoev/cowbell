@@ -34,6 +34,10 @@
         <li>You gave up, the number was: <%= number %></li>
     </script>
 
+    <script type="text/html" id="wait">
+        <li>Wait, it is not your turn</li>
+    </script>
+
     <script>
         $(function() {
             var socket = io.connect('http://localhost:8080');
@@ -74,6 +78,11 @@
             }).on("give up", function(result) {
                 $log.append($(templates.giveup(result)));
                 $tryGuess.remove();
+            }).on("already started", function() {
+                $("h1").text("Sorry, the game has already started");
+                $tryGuess.remove();
+            }).on("wait", function() {
+                $log.append($(templates.wait()));
             });
         });
     </script>
