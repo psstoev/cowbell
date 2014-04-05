@@ -11,7 +11,7 @@ describe("Player", function() {
     
     beforeEach(function() {
         server = {
-            createSession: chai.spy(),
+            createGame: chai.spy(),
         };
     });
 
@@ -27,6 +27,6 @@ describe("Player", function() {
         var player = new Player("id0", server);
         player.initiateGame();
 
-        expect(server.createSession).to.have.been.called().with(player);
+        expect(server.createGame).to.have.been.called().with(player);
     });
 });
