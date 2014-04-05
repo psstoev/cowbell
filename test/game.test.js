@@ -2,6 +2,8 @@ var chai = require("chai");
 var Game = require("../lib/game");
 var expect = chai.expect;
 
+chai.use(require("chai-spies"));
+
 describe("Game", function() {
     it("generates a target on initialization", function() {
         var game = new Game();
@@ -11,17 +13,13 @@ describe("Game", function() {
 
     it("can tell if it was already won by someone", function() {
         var game = new Game("1234");
-        var isWon = false;
+        var alreadyWonCallback = chai.spy();
 
         game.tryGuess("1234");
-
-        game.on("alreadyWon", function() {
-            isWon = true;
-        });
-
+        game.on("alreadyWon", alreadyWonCallback);
         game.tryGuess("5678");
 
-        expect(isWon).to.be.true;
+        expect(alreadyWonCallback).to.have.been.called();
     });
 
     describe("Game.createTargetNumber", function() {
@@ -65,64 +63,66 @@ describe("Game", function() {
 
     describe("Game#tryGuess", function() {
         var game;
-        var invalidGuess;
+        var invalidGuessCallback;
+        var foundCowsAndBullsCallback;
 
         beforeEach(function() {
-            game = new Game();
-            invalidGuess = false;
+            game = new Game("1234");
+            invalidGuessCallback = chai.spy();
+            foundCowsAndBullsCallback = chai.spy();
 
-            game.on("invalidGuess", function() {
-                invalidGuess = true;
-            });
+            game.on("invalidGuess", invalidGuessCallback);
+            game.on("foundCowsAndBulls", foundCowsAndBullsCallback);
         });
 
         it("validates length", function() {
             game.tryGuess("1");
-            expect(invalidGuess).to.be.true;
+            expect(invalidGuessCallback).to.have.been.called();
         });
 
         it("validates that the guess does not start with 0", function() {
             game.tryGuess("0123");
-            expect(invalidGuess).to.be.true;
+            expect(invalidGuessCallback).to.have.been.called();
         });
 
         it("validates that the guess contains only unique digits", function() {
             game.tryGuess("1223");
-            expect(invalidGuess).to.be.true;
+            expect(invalidGuessCallback).to.have.been.called();
         });
 
         it("recognizes valid guesses", function() {
             game.tryGuess("1234");
-            expect(invalidGuess).to.be.false;
+            expect(invalidGuessCallback).to.not.have.been.called();
         });
 
         it("returns 0 for no cows and 0 for no bulls", function() {
-            expect((new Game("1234")).tryGuess("5678")).to.deep.eq({cows: 0, bulls: 0, guess: "5678"});
+            game.tryGuess("5678");
+            expect(foundCowsAndBullsCallback).to.have.been.called().with({cows: 0, bulls: 0, guess: "5678"});
         });
 
         it("returns the correct number of cows", function() {
-            expect((new Game("1234")).tryGuess("4523")).to.deep.eq({cows: 3, bulls: 0, guess: "4523"});
+            game.tryGuess("4523");
+            expect(foundCowsAndBullsCallback).to.have.been.called().with({cows: 3, bulls: 0, guess: "4523"});
         });
 
         it("returns the correct number of bulls", function() {
-            expect((new Game("1234")).tryGuess("5274")).to.deep.eq({cows: 0, bulls: 2, guess: "5274"});
+            game.tryGuess("5274");
+            expect(foundCowsAndBullsCallback).to.have.been.called().with({cows: 0, bulls: 2, guess: "5274"});
         });
 
         it("distinguishes betweet bulls and cows", function() {
-            expect((new Game("1234")).tryGuess("1435")).to.deep.eq({cows: 1, bulls: 2, guess: "1435"});
+            game.tryGuess("1435");
+            expect(foundCowsAndBullsCallback).to.have.been.called().with({cows: 1, bulls: 2, guess: "1435"});
         });
 
         it("triggers 'playerWon' event", function() {
             var game = new Game("1234");
-            var isWon = false;
+            var playewWonCallback = chai.spy();
 
-            game.on("playerWon", function() {
-                isWon = true;
-            });
-
+            game.on("playerWon", playewWonCallback);
             game.tryGuess("1234");
 
-            expect(isWon).to.be.true;
+            expect(playewWonCallback).to.have.been.called();
         });
     });
 });
