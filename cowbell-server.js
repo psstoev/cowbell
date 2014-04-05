@@ -14,11 +14,11 @@ var currentPlayer = null;
 
 var gameSession = new GameSession();
 
-gameSession.game.on("playerWon", function() {
+gameSession.game.on("correct", function() {
     playerSockets[currentPlayer].emit("correct", { guess: gameSession.game.target });
-}).on("foundCowsAndBulls", function(result) {
+}).on("valid", function(result) {
     playerSockets[currentPlayer].emit("found", result);
-}).on("invalidGuess", function(guess) {
+}).on("invalid", function(guess) {
     playerSockets[currentPlayer].emit("error", { guess: guess });
 });
 

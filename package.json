@@ -4,7 +4,7 @@
   "description": "A simple client-server game of Bulls and Cows",
   "main": "./cowbell-cli",
   "scripts": {
-    "test": "./node_modules/.bin/mocha -C --reporter spec test/*.test.js"
+    "test": "./node_modules/.bin/mocha -C test/*.test.js"
   },
   "repository": {
     "type": "git",

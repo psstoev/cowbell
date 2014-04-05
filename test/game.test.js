@@ -16,7 +16,7 @@ describe("Game", function() {
         var alreadyWonCallback = chai.spy();
 
         game.tryGuess("1234");
-        game.on("alreadyWon", alreadyWonCallback);
+        game.on("won", alreadyWonCallback);
         game.tryGuess("5678");
 
         expect(alreadyWonCallback).to.have.been.called();
@@ -63,66 +63,66 @@ describe("Game", function() {
 
     describe("Game#tryGuess", function() {
         var game;
-        var invalidGuessCallback;
-        var foundCowsAndBullsCallback;
+        var invalidCallback;
+        var validCallback;
 
         beforeEach(function() {
             game = new Game("1234");
-            invalidGuessCallback = chai.spy();
-            foundCowsAndBullsCallback = chai.spy();
+            invalidCallback = chai.spy();
+            validCallback = chai.spy();
 
-            game.on("invalidGuess", invalidGuessCallback);
-            game.on("foundCowsAndBulls", foundCowsAndBullsCallback);
+            game.on("invalid", invalidCallback);
+            game.on("valid", validCallback);
         });
 
         it("validates length", function() {
             game.tryGuess("1");
-            expect(invalidGuessCallback).to.have.been.called();
+            expect(invalidCallback).to.have.been.called();
         });
 
         it("validates that the guess does not start with 0", function() {
             game.tryGuess("0123");
-            expect(invalidGuessCallback).to.have.been.called();
+            expect(invalidCallback).to.have.been.called();
         });
 
         it("validates that the guess contains only unique digits", function() {
             game.tryGuess("1223");
-            expect(invalidGuessCallback).to.have.been.called();
+            expect(invalidCallback).to.have.been.called();
         });
 
         it("recognizes valid guesses", function() {
             game.tryGuess("1234");
-            expect(invalidGuessCallback).to.not.have.been.called();
+            expect(invalidCallback).to.not.have.been.called();
         });
 
         it("returns 0 for no cows and 0 for no bulls", function() {
             game.tryGuess("5678");
-            expect(foundCowsAndBullsCallback).to.have.been.called().with({cows: 0, bulls: 0, guess: "5678"});
+            expect(validCallback).to.have.been.called().with({cows: 0, bulls: 0, guess: "5678"});
         });
 
         it("returns the correct number of cows", function() {
             game.tryGuess("4523");
-            expect(foundCowsAndBullsCallback).to.have.been.called().with({cows: 3, bulls: 0, guess: "4523"});
+            expect(validCallback).to.have.been.called().with({cows: 3, bulls: 0, guess: "4523"});
         });
 
         it("returns the correct number of bulls", function() {
             game.tryGuess("5274");
-            expect(foundCowsAndBullsCallback).to.have.been.called().with({cows: 0, bulls: 2, guess: "5274"});
+            expect(validCallback).to.have.been.called().with({cows: 0, bulls: 2, guess: "5274"});
         });
 
         it("distinguishes betweet bulls and cows", function() {
             game.tryGuess("1435");
-            expect(foundCowsAndBullsCallback).to.have.been.called().with({cows: 1, bulls: 2, guess: "1435"});
+            expect(validCallback).to.have.been.called().with({cows: 1, bulls: 2, guess: "1435"});
         });
 
-        it("triggers 'playerWon' event", function() {
+        it("triggers 'correct' event", function() {
             var game = new Game("1234");
-            var playewWonCallback = chai.spy();
+            var callback = chai.spy();
 
-            game.on("playerWon", playewWonCallback);
+            game.on("correct", callback);
             game.tryGuess("1234");
 
-            expect(playewWonCallback).to.have.been.called();
+            expect(callback).to.have.been.called();
         });
     });
 });

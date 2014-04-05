@@ -9,12 +9,12 @@ var readLineInterface = readline.createInterface({
     output: process.stdout,
 });
 
-game.on("playerWon", function() {
+game.on("correct", function() {
     console.log("\nCorrect! The number was " + game.target + ". Bye!");
     readLineInterface.close();
-}).on("foundCowsAndBulls", function(result) {
+}).on("valid", function(result) {
     console.log(result.cows + " cows and " + result.bulls + " bulls");
-}).on("invalidGuess", function(guess) {
+}).on("invalid", function(guess) {
     console.log("Invalid guess: ", guess);
 });
 
