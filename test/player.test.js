@@ -1,8 +1,6 @@
 var chai = require("chai");
-var spies = require("chai-spies");
+chai.use(require("chai-spies"));
 var expect = chai.expect;
-
-chai.use(spies);
 
 var Player = require("../lib/player");
 
@@ -19,6 +17,8 @@ describe("Player", function() {
         game = {
             addPlayer: chai.spy(),
             removePlayer: chai.spy(),
+            start: chai.spy(),
+            tryGuess: chai.spy(),
         };
     });
 
@@ -26,6 +26,7 @@ describe("Player", function() {
         expect(player.id).to.eq("id0");
         expect(player.server).to.eq(server);
         expect(player.game).to.be.null;
+        expect(player.currentPlayer).to.be.false;
     });
 
     it("can ask the server to create a new game", function() {
@@ -59,5 +60,28 @@ describe("Player", function() {
 
         expect(game.removePlayer).to.have.been.called().with(player);
         expect(player.game).to.be.null;
+    });
+
+    it("can start the game", function() {
+        player.game = game;
+
+        player.startGame();
+        expect(game.start).to.have.been.called();
+    });
+
+    it("knows if she is the current player or not", function() {
+        expect(player.currentPlayer).to.be.false;
+        player.emit("guess");
+        expect(player.currentPlayer).to.be.true;
+        player.emit("wait");
+        expect(player.currentPlayer).to.be.false;
+    });
+
+    it("can try guesses when the game is started", function() {
+        player.game = game;
+        player.emit("guess");
+        player.tryGuess("1234");
+
+        expect(game.tryGuess).to.have.been.called().with(player, "1234");
     });
 });

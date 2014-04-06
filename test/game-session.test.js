@@ -1,12 +1,22 @@
 var chai = require("chai");
+chai.use(require("chai-spies"));
 var expect = chai.expect;
 var GameSession = require("../lib/game-session");
 
 describe("GameSession", function() {
     var gameSession;
+    var player1;
+    var player2;
 
     beforeEach(function() {
         gameSession = new GameSession();
+
+        player1 = {
+            emit: chai.spy()
+        };
+        player2 = {
+            emit: chai.spy()
+        };
     });
 
     it("initializes a Game with optional target", function() {
@@ -26,10 +36,10 @@ describe("GameSession", function() {
     });
 
     it("does not allow new players after it has started", function() {
-        gameSession.addPlayer("player1");
+        gameSession.addPlayer(player1);
         gameSession.start();
-        gameSession.addPlayer("player2");
-        expect(gameSession.players).to.deep.eq(["player1"]);
+        gameSession.addPlayer(player2);
+        expect(gameSession.players).to.deep.eq([player1]);
     });
 
     it("allows players to leave", function() {
@@ -41,42 +51,57 @@ describe("GameSession", function() {
     it("does not start without players", function() {
         gameSession.start();
         expect(gameSession.hasStarted).to.be.false;
-        gameSession.addPlayer("player1");
+        gameSession.addPlayer(player1);
         gameSession.start();
         expect(gameSession.hasStarted).to.be.true;
     });
 
     describe("with players", function() {
         var gameSession;
+        var player1;
+        var player2;
 
         beforeEach(function() {
             gameSession = new GameSession("1234");
-            gameSession.addPlayer("player1");
-            gameSession.addPlayer("player2");
+
+            player1 = {
+                emit: chai.spy()
+            };
+            player2 = {
+                emit: chai.spy()
+            };
+
+            gameSession.addPlayer(player1);
+            gameSession.addPlayer(player2);
             gameSession.start();
         });
 
         it("remembers who is the current player", function() {
-            expect(gameSession.currentPlayer).to.eq("player1");
+            expect(player1.emit).to.have.been.called().with("guess");
+            expect(player2.emit).to.have.been.called().with("wait");
         });
 
         it("cycles between players", function() {
-            expect(gameSession.currentPlayer).to.eq("player1");
             gameSession.nextPlayer();
-            expect(gameSession.currentPlayer).to.eq("player2");
+            expect(player1.emit).to.have.been.called().with("wait");
+            expect(player2.emit).to.have.been.called().with("guess");
         });
 
         it("switches to the next player after the current one is removed", function() {
-            gameSession.removePlayer("player1");
-            expect(gameSession.currentPlayer).to.eq("player2");
-            expect(gameSession.currentPlayerIndex).to.eq(0);
+            gameSession.removePlayer(player1);
+            expect(player2.emit).to.have.been.called().with("guess");
+        });
+
+        it("allows the current player to make a guess", function() {
+            gameSession.tryGuess(player1, "2345");
+            expect(player1.emit).to.have.been.called().with("found");
         });
 
         it("tells when someone wins", function() {
-            gameSession.game.tryGuess("1023");
-            gameSession.game.tryGuess("1234");
+            gameSession.tryGuess(player1, "1023");
+            gameSession.tryGuess(player2, "1234");
 
-            expect(gameSession.winner).to.eq("player2");
+            expect(gameSession.winner).to.eq(player2);
         });
     });
 });
