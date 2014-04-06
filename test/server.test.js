@@ -51,5 +51,11 @@ describe("Server", function() {
 
             expect(server.getGame(game.id)).to.eq(game);
         });
+
+        it("can return a list of all games", function() {
+            var game = server.createGame(player);
+
+            expect(server.getGames().length).to.eq(1);
+        });
     });
 });
