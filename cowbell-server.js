@@ -2,30 +2,97 @@
 
 var http = require("http");
 var express = require("express");
-var fs = require("fs");
-var path = require("path");
-var url = require("url");
 var socketIo = require("socket.io");
 
-var GameSession = require("./lib/game-session");
-var playerCount = 0;
-var playerSockets = {};
-var currentPlayer = null;
+var Server = require("./lib/server");
 
-var gameSession = new GameSession();
+var server = new Server();
 
-gameSession.game.on("correct", function() {
-    playerSockets[currentPlayer].emit("correct", { guess: gameSession.game.target });
-}).on("valid", function(result) {
-    playerSockets[currentPlayer].emit("found", result);
-}).on("invalid", function(guess) {
-    playerSockets[currentPlayer].emit("error", { guess: guess });
-});
+var socketPool = {};
+
+var connectPlayerToGame = function(player, gameSession) {
+    var socket = socketPool[player.id];
+
+    // Wire sockets:
+    if (socket) {
+        socket.on("start", function() {
+            gameSession.start();
+        }).on("guess", function(guess) {
+            gameSession.tryGuess(player, guess);
+        }).on("giveUp", function() {
+            gameSession.removePlayer(player);
+            socket.emit("giveUp", { number: gameSession.game.target });
+        });
+
+        player.on("guess", function() {
+            socket.emit("guess");
+        }).on("wait", function() {
+            socket.emit("wait");
+        }).on("found", function(result) {
+            socket.emit("found", result);
+        }).on("gameStarted", function() {
+            socket.emit("gameStarted");
+        }).on("youWon", function() {
+            // TODO: remove the game from the game pool
+            socket.emit("youWon", { number: gameSession.game.target });
+        }).on("youLost", function() {
+            socket.emit("youLost", { number: gameSession.game.target });
+        });
+    }
+};
 
 var app = express();
 app.configure(function() {
     app.use(express.static(__dirname));
     app.use(express.compress());
+    app.use(express.urlencoded());
+
+    app.get("/players", function(request, response) {
+        response.send(server.getPlayers().map(function(player) {
+            return { id: player.id };
+        }));
+    });
+
+    app.get("/players/new", function(request, response) {
+        response.send({ id: server.getPlayer().id });
+    });
+
+    app.get("/games", function(request, response) {
+        // TODO: move this to GameSession:
+        response.send(server.getGames().filter(function(game) {
+            return !game.hasStarted;
+        }).map(function(game) {
+            return { id: game.id };
+        }));
+    });
+
+    app.post("/games/new", function(request, response) {
+        var playerId = request.body.id;
+        var gameSession;
+        var player;
+
+        if (playerId) {
+            player = server.getPlayer(playerId);
+            gameSession = server.createGame(player);
+            connectPlayerToGame(player, gameSession);
+            response.send({ id: gameSession.id });
+        }
+    });
+
+    app.post("/games/:id/join", function(request, response) {
+        var gameSession = server.getGame(request.params.id);
+        var playerId = request.body.id;
+
+        if (gameSession && playerId) {
+            player = server.getPlayer(playerId);
+
+            if (!gameSession.hasStarted) {
+                gameSession.addPlayer(player);
+                connectPlayerToGame(player, gameSession);
+                response.send({ id: gameSession.id });
+            }
+        }
+    });
 });
 
 var httpServer = http.createServer(app);
@@ -33,34 +100,9 @@ httpServer.listen(8080);
 var io = socketIo.listen(httpServer);
 
 io.sockets.on("connection", function(socket) {
-    if (gameSession.hasStarted) {
-        socket.emit("already started");
-        return;
-    }
-
-    playerCount++;
-    var playerId = "player" + playerCount;
-
-    socket.emit("welcome", playerId);
-
-    gameSession.addPlayer(playerId);
-    playerSockets[playerId] = socket;
-
-    if (playerCount === 3) {
-        gameSession.start();
-    }
-
-    socket.on("guess", function(guess) {
-        if (gameSession.hasStarted && gameSession.currentPlayer === playerId) {
-            currentPlayer = playerId;
-            gameSession.game.tryGuess(guess);
-        } else {
-            playerSockets[playerId].emit("wait");
+    socket.on("hello", function(playerId) {
+        if (typeof socketPool[playerId] === "undefined") {
+            socketPool[playerId] = socket;
         }
-    }).on("give up", function() {
-        gameSession.removePlayer(playerId);
-        socket.emit("give up", { number: gameSession.game.target });
-    }).on("disconnect", function() {
-        gameSession.removePlayer(playerId);
     });
 });
