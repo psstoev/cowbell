@@ -3,6 +3,7 @@
 var http = require("http");
 var express = require("express");
 var socketIo = require("socket.io");
+var path = require("path");
 
 var Server = require("./lib/server");
 
@@ -43,7 +44,7 @@ var connectPlayerToGame = function(player, gameSession) {
 
 var app = express();
 app.configure(function() {
-    app.use(express.static(__dirname));
+    app.use(express.static(path.join(__dirname, "public")));
     app.use(express.compress());
     app.use(express.urlencoded());
 
