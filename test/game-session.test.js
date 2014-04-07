@@ -76,6 +76,11 @@ describe("GameSession", function() {
             gameSession.start();
         });
 
+        it("notifies the players that it started", function() {
+            expect(player1.emit).to.have.been.called().with("gameStarted");
+            expect(player2.emit).to.have.been.called().with("gameStarted");
+        });
+
         it("remembers who is the current player", function() {
             expect(player1.emit).to.have.been.called().with("guess");
             expect(player2.emit).to.have.been.called().with("wait");
