@@ -98,10 +98,10 @@ describe("GameSession", function() {
         });
 
         it("tells when someone wins", function() {
-            gameSession.tryGuess(player1, "1023");
-            gameSession.tryGuess(player2, "1234");
+            gameSession.tryGuess(player1, "1234");
 
-            expect(gameSession.winner).to.eq(player2);
+            expect(player1.emit).to.have.been.called().with("youWon");
+            expect(player2.emit).to.have.been.called().with("youLost");
         });
     });
 });
