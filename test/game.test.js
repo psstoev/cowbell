@@ -48,7 +48,7 @@ describe("Game", function() {
              */
 
             var TOTAL_COUNT = 100000;
-            var EXPECTED_MEAN = 5450;
+            var EXPECTED_MEAN = 5040;
             var sum = 0, mean;
 
             for (var i = 0; i < TOTAL_COUNT; i++) {
