@@ -49,6 +49,8 @@ var app = express();
 app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser());
 app.use(compression());
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "jade");
 
 app.get("/players", function(request, response) {
     response.send(server.getPlayers().map(function(player) {
@@ -95,6 +97,10 @@ app.post("/games/:id/join", function(request, response) {
             response.send({ id: gameSession.id });
         }
     }
+});
+
+app.get("/", function(request, response) {
+    response.render('index');
 });
 
 var httpServer = http.createServer(app);

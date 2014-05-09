@@ -1,52 +1,45 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <title>Cowbell</title>
-    <meta charset="utf-8">
-</head>
-<body>
-    <h1></h1>
-    <ul></ul>
+doctype html
+html(lang="en")
+head
+    title Cowbell
+    meta(charset="utf-8")
+body
+    h1
+    ul
 
-    <button id="new-game">Create a new game</button>
-    <button id="start-game" style="display: none">Start the game</button>
+    button(id="new-game") Create a new game
+    button(id="start-game", style="display:none") Start the game
 
-    <div id="controls" style="display: none">
-        <input id="guess" type="text">
-        <button id="try-guess">Guess</button>
-        <button id="give-up">Give up</button>
-    </div>
+    div(id="controls", style="display:none")
+        input(id="guess", type="text")
+        button(id="try-guess") Guess
+        button(id="give-up") Give up
 
-    <script src="/components/jquery-2.1.0.min.js"></script>
-    <script src="/components/underscore-min.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
+    script(src="/components/jquery-2.1.0.min.js")
+    script(src="/components/underscore-min.js")
+    script(src="/socket.io/socket.io.js")
 
-    <script type="text/html" id="found">
-        <li>You guessed: <%= guess %>, Cows: <%= cows %>, Bulls: <%= bulls %></li>
-    </script>
+    script(type="text/html", id="found")
+        != '<li>You guessed: <%= guess %>, Cows: <%= cows %>, Bulls: <%= bulls %></li>'
 
-    <script type="text/html" id="won">
-        <li>Correct! The number was: <%= number %></li>
-    </script>
+    script(type="text/html", id="won")
+        != '<li>Correct! The number was: <%= number %></li>'
 
-    <script type="text/html" id="lost">
-        <li>Another player won! The number was: <%= number %></li>
+    script(type="text/html", id="lost")
+        != '<li>Another player won! The number was: <%= number %></li>'
 
-    <script type="text/html" id="error">
-        <li>Invalid guess: <%= guess %></li>
-    </script>
+    script(type="text/html", id="error")
+        != '<li>Invalid guess: <%= guess %></li>'
 
-    <script type="text/html" id="giveup">
-        <li>You gave up, the number was: <%= number %></li>
-    </script>
+    script(type="text/html", id="giveup")
+        != '<li>You gave up, the number was: <%= number %></li>'
 
-    <script type="text/html" id="gameList">
-        <ul><% _.each(games, function(game) { %>
-            <li class="game-entry" data-id="<%= game.id %>">Game <%= game.id %></li>
-        <% }) %></ul>
-    </script>
+    script(type="text/html", id="gameList")
+        != '<ul><% _.each(games, function(game) { %>'
+        != '    <li class="game-entry" data-id="<%= game.id %>">Game <%= game.id %></li>'
+        != '<% }) %></ul>'
 
-    <script>
+    script(type="text/javascript").
         $(function() {
             var socket = io.connect('http://localhost:8080');
             var $body = $(document.body);
@@ -161,6 +154,3 @@
                 $controls.hide();
             });
         });
-    </script>
-</body>
-</html>
