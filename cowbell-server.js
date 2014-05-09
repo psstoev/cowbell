@@ -2,6 +2,8 @@
 
 var http = require("http");
 var express = require("express");
+var bodyParser = require("body-parser");
+var compression = require("compression");
 var socketIo = require("socket.io");
 var path = require("path");
 
@@ -43,57 +45,56 @@ var connectPlayerToGame = function(player, gameSession) {
 };
 
 var app = express();
-app.configure(function() {
-    app.use(express.static(path.join(__dirname, "public")));
-    app.use(express.compress());
-    app.use(express.urlencoded());
 
-    app.get("/players", function(request, response) {
-        response.send(server.getPlayers().map(function(player) {
-            return { id: player.id };
-        }));
-    });
+app.use(express.static(path.join(__dirname, "public")));
+app.use(bodyParser());
+app.use(compression());
 
-    app.get("/players/new", function(request, response) {
-        response.send({ id: server.getPlayer().id });
-    });
+app.get("/players", function(request, response) {
+    response.send(server.getPlayers().map(function(player) {
+        return { id: player.id };
+    }));
+});
 
-    app.get("/games", function(request, response) {
-        // TODO: move this to GameSession:
-        response.send(server.getGames().filter(function(game) {
-            return !game.hasStarted;
-        }).map(function(game) {
-            return { id: game.id };
-        }));
-    });
+app.get("/players/new", function(request, response) {
+    response.send({ id: server.getPlayer().id });
+});
 
-    app.post("/games/new", function(request, response) {
-        var playerId = request.body.id;
-        var gameSession;
-        var player;
+app.get("/games", function(request, response) {
+    // TODO: move this to GameSession:
+    response.send(server.getGames().filter(function(game) {
+        return !game.hasStarted;
+    }).map(function(game) {
+        return { id: game.id };
+    }));
+});
 
-        if (playerId) {
-            player = server.getPlayer(playerId);
-            gameSession = server.createGame(player);
+app.post("/games/new", function(request, response) {
+    var playerId = request.body.id;
+    var gameSession;
+    var player;
+
+    if (playerId) {
+        player = server.getPlayer(playerId);
+        gameSession = server.createGame(player);
+        connectPlayerToGame(player, gameSession);
+        response.send({ id: gameSession.id });
+    }
+});
+
+app.post("/games/:id/join", function(request, response) {
+    var gameSession = server.getGame(request.params.id);
+    var playerId = request.body.id;
+
+    if (gameSession && playerId) {
+        player = server.getPlayer(playerId);
+
+        if (!gameSession.hasStarted) {
+            gameSession.addPlayer(player);
             connectPlayerToGame(player, gameSession);
             response.send({ id: gameSession.id });
         }
-    });
-
-    app.post("/games/:id/join", function(request, response) {
-        var gameSession = server.getGame(request.params.id);
-        var playerId = request.body.id;
-
-        if (gameSession && playerId) {
-            player = server.getPlayer(playerId);
-
-            if (!gameSession.hasStarted) {
-                gameSession.addPlayer(player);
-                connectPlayerToGame(player, gameSession);
-                response.send({ id: gameSession.id });
-            }
-        }
-    });
+    }
 });
 
 var httpServer = http.createServer(app);
